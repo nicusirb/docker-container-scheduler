@@ -7,7 +7,7 @@ What to be carefull at:
 2. Mount the directory containing your `crontab` at `/usr/scheduler/[production:?]`
 3. Environment telling the script where is your cron under `/usr/scheduler/` => `SCHEDULER_ENVIRONMENT="production"`
 
-The common part between `1.` and `2.` is `production`, you can say whatever you like there, but mount the volume accordingly. (i.e. if you wanna say `test` mount under `/usr/scheduler/test` your `crontab` and all the scripts)
+The common part between `2.` and `3.` is `production`, you can say whatever you like there, but mount the volume accordingly. (i.e. if you wanna say `test` mount under `/usr/scheduler/test` your `crontab` and all the scripts)
 
 ## production diretory content
 
