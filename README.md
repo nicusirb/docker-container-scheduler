@@ -1,4 +1,4 @@
-# Docker Containers Scheduler
+# Docker Container Scheduler
 
 It works on a simple cron principle.
 
