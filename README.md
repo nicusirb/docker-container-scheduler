@@ -50,10 +50,13 @@ services:
     hostname: scheduler
     image: docker-container-scheduler:dev0
     restart: unless-stopped
+    privileged: true
+    tty: true
     environment:
       - SCHEDULER_ENVIRONMENT="production"
     volumes:
       - ${PWD}/production:/usr/scheduler/production
+      - /var/run/docker.sock:/var/run/docker.sock
 ```
 
 ## docker run
