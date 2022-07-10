@@ -9,7 +9,7 @@ What to be carefull at:
 
 The common part between `2.` and `3.` is `production`, you can say whatever you like there, but mount the volume accordingly. (i.e. if you wanna say `test` mount under `/usr/scheduler/test` your `crontab` and all the scripts)
 
-## production diretory content
+## production directory content
 
 - crontab
 - hello.sh
