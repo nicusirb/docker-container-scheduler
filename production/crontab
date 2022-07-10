@@ -1,0 +1,6 @@
+* * * * * sched vm1 s hello.sh
+* * * * * sched vm1 c "echo Hello world!"
+* * * * * sched vm2 s hello.sh
+* * * * * sched vm3 s hello.sh
+* * * * * sched vm4 s hello.sh
+* * * * * sched vm5 s hello.sh

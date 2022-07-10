@@ -1,0 +1,83 @@
+#!/bin/bash
+
+# * * * * * sched vm1 hello.sh
+
+red="\e[31m"
+green="\e[32m"
+blue="\e[34m"
+endcolor="\e[0m"
+
+_msg_info() {
+    printf "[$(date +%F_%H:%M:%S)] [${blue}Info${endcolor}] %s \n" "$@"
+}
+
+_msg_success() {
+    printf "[$(date +%F_%H:%M:%S)] [${green}Success${endcolor}] %s \n" "$@"
+}
+
+_msg_error() {
+    printf "[$(date +%F_%H:%M:%S)] [${red}Error${endcolor}] %s \n" "$@"
+    exit 1
+}
+
+declare -r container_lcl=$1; shift
+declare -r type=$1; shift
+declare -r script_lcl=$1; shift
+declare -r scripts_workspace="/usr/scheduler/${SCHEDULER_ENVIRONMENT}"
+
+if [[ ${type} == "s" ]]; then
+    ## Create the workspace if does not exists
+    docker exec -u 0 "${container_lcl}" /bin/sh -c "[[ -d ${scripts_workspace} ]]"
+    if [[ $? -eq 1 ]]; then
+        _msg_info "[${container_lcl}] - Creating workspace [${scripts_workspace}]"
+        docker exec -u 0 "${container_lcl}" /bin/sh -c "mkdir -p ${scripts_workspace} && chmod o+w ${scripts_workspace}"
+        [[ $? -eq 0 ]] && _msg_success "[${container_lcl}] - Creating workspace [${scripts_workspace}]" || \
+                            _msg_error "[${container_lcl}] - Creating workspace [${scripts_workspace}]"
+    fi
+
+    ## Check if the script exists there
+    docker exec -u 0 "${container_lcl}" /bin/sh -c "[[ -f ${scripts_workspace}/${script_lcl} ]]"
+    if [[ $? -eq 1 ]]; then
+        _msg_info "[${container_lcl}] - Convert script [${script_lcl}] to Unix format."
+        dos2unix "${scripts_workspace}"/"${script_lcl}" &> /dev/null || { _msg_error "[${container_lcl}] Conversion failed. Please check script!" && exit 1; }
+        _msg_info "[${container_lcl}] - Copy script [${script_lcl}]"
+        docker cp "${scripts_workspace}"/"${script_lcl}" "${container_lcl}":"${scripts_workspace}"
+        [[ $? -eq 0 ]] && _msg_success "[${container_lcl}] - Copy script [${script_lcl}]" || \
+                            _msg_error "[${container_lcl}] - Copy script [${script_lcl}]"
+    fi
+
+    ## Check if the script is executable
+    docker exec -u 0 "${container_lcl}" /bin/sh -c "[[ -x ${scripts_workspace}/${script_lcl} ]]"
+    if [[ $? -eq 1 ]]; then
+        _msg_info "[${container_lcl}] - Making script [${script_lcl}] executable"
+        docker exec -u 0 "${container_lcl}" /bin/sh -c "chmod +x ${scripts_workspace}/${script_lcl}"
+        [[ $? -eq 0 ]] && _msg_success "[${container_lcl}] - Making script [${script_lcl}] executable" || \
+                            _msg_error "[${container_lcl}] - Making script [${script_lcl}] executable"
+    fi
+
+
+    ## Run script
+    declare result_lcl=$(docker exec "${container_lcl}" /bin/sh -c "${scripts_workspace}/${script_lcl}")
+    if [[ $? -eq 1 ]]; then
+        _msg_error "[${container_lcl}] - Script failed with result: ${result_lcl}"
+    else
+        _msg_success "[${container_lcl}] - Script succeded with result: ${result_lcl}"
+        exit 0
+    fi
+
+elif [[ ${type} == "c" ]]; then
+     ## Run command
+    declare result_lcl=$(docker exec "${container_lcl}" /bin/sh -c "${script_lcl}")
+    if [[ $? -eq 1 ]]; then
+        _msg_error "[${container_lcl}] - Command failed with result: ${result_lcl}"
+    else
+        _msg_success "[${container_lcl}] - Command succeded with result: ${result_lcl}"
+        exit 0
+    fi
+
+else
+    _msg_error "Invalid type! Valid types are s/c (script/command)!"
+fi
+
+
+
