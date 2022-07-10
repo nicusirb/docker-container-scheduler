@@ -24,6 +24,7 @@ declare -r container_lcl=$1; shift
 declare -r type=$1; shift
 declare -r script_lcl=$1; shift
 declare -r scripts_workspace="/usr/scheduler/${SCHEDULER_ENVIRONMENT}"
+declare result_lcl
 
 if [[ ${type} == "s" ]]; then
     ## Create the workspace if does not exists
@@ -57,7 +58,7 @@ if [[ ${type} == "s" ]]; then
 
 
     ## Run script
-    declare result_lcl=$(docker exec "${container_lcl}" /bin/sh -c "${scripts_workspace}/${script_lcl}")
+    result_lcl=$(docker exec "${container_lcl}" /bin/sh -c "${scripts_workspace}/${script_lcl}")
     if [[ $? -eq 1 ]]; then
         _msg_error "[${container_lcl}] - Script failed with result: ${result_lcl}"
     else
@@ -67,7 +68,7 @@ if [[ ${type} == "s" ]]; then
 
 elif [[ ${type} == "c" ]]; then
      ## Run command
-    declare result_lcl=$(docker exec "${container_lcl}" /bin/sh -c "${script_lcl}")
+    result_lcl=$(docker exec "${container_lcl}" /bin/sh -c "${script_lcl}")
     if [[ $? -eq 1 ]]; then
         _msg_error "[${container_lcl}] - Command failed with result: ${result_lcl}"
     else
