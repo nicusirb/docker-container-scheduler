@@ -5,7 +5,7 @@ It works on a simple cron principle.
 What to be carefull at:
 1. `crontab` file - it must exists, with this specific name, and the content explained below
 2. Mount the directory containing your `crontab` at `/usr/scheduler/[production:?]`
-3. Environment telling the script where is your cron under `/usr/scheduler/` => `SCHEDULER_ENVIRONMENT="production"`
+3. Environment telling the script where is your cron under `/usr/scheduler/` => `SCHEDULER_ENVIRONMENT=production`
 
 The common part between `2.` and `3.` is `production`, you can say whatever you like there, but mount the volume accordingly. (i.e. if you wanna say `test` mount under `/usr/scheduler/test` your `crontab` and all the scripts)
 
@@ -53,7 +53,7 @@ services:
     privileged: true
     tty: true
     environment:
-      - SCHEDULER_ENVIRONMENT="production"
+      - SCHEDULER_ENVIRONMENT=production
     volumes:
       - ${PWD}/production:/usr/scheduler/production
       - /var/run/docker.sock:/var/run/docker.sock
